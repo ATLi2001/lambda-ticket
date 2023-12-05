@@ -49,8 +49,18 @@ fn as_u32(val: Option<&AttributeValue>, default: u32) -> u32 {
     default
 }
 
+fn as_bool(val: Option<&AttributeValue>, default: bool) -> bool {
+    if let Some(v) = val {
+        if let Ok(b) = v.as_bool() {
+            return b.to_owned();
+        }
+    }
+    default
+}
+
 fn as_ticket(val: Option<&AttributeValue>) -> Ticket {
-    serde_json::from_str::<Ticket>(val.unwrap().as_s().unwrap()).unwrap()
+    let ticket_m = val.unwrap().as_m().unwrap();
+    ticket_m.into()
 }
 
 impl From<&HashMap<String, AttributeValue>> for Item {
@@ -60,6 +70,18 @@ impl From<&HashMap<String, AttributeValue>> for Item {
             id: as_string(value.get("ID"), &"".to_string()),
             version: as_u32(value.get("Version"), 0),
             value: as_ticket(value.get("Value")),
+        }
+    }
+}
+
+impl From<&HashMap<String, AttributeValue>> for Ticket {
+    fn from(value: &HashMap<String, AttributeValue>) -> Self {
+        Ticket {
+            id: as_u32(value.get("id"), 0),
+            taken: as_bool(value.get("taken"), false),
+            res_email: Some(as_string(value.get("res_email"), &"".to_string())),
+            res_name: Some(as_string(value.get("res_name"), &"".to_string())),
+            res_card: Some(as_string(value.get("res_card"), &"".to_string())),
         }
     }
 }
