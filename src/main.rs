@@ -328,9 +328,9 @@ fn anti_fraud(ticket: &Ticket) -> bool {
         feature_vec[i] = (feature_str[i] as f32) / (feature_norm.sqrt());
     }
 
-    let model_depth = 50;
+    let model_depth = 256;
     for i in 0..model_depth {
-        feature_vec = multiply_random_normal(feature_vec, 128, (i+1) as f32);
+        feature_vec = multiply_random_normal(feature_vec, 128, ((i % 64)+1) as f32);
         feature_vec = relu(feature_vec);
     }
 
